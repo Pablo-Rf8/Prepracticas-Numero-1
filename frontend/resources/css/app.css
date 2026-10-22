@@ -28,6 +28,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid #315ea8; outline-offs
 .field-label { display: block; margin-bottom: 4px; }
 .field-input { display: block; box-sizing: border-box; width: 100%; max-width: 420px; padding: 8px 10px; border: 1px solid #c7cdd6; border-radius: 4px; background: white; font: inherit; }
 .field-input:focus { outline: 2px solid #315ea8; outline-offset: 1px; }
+.password-field { display: flex; align-items: center; gap: 8px; max-width: 420px; }
+.password-field .field-input { flex: 1; min-width: 0; }
+.password-toggle { flex: none; padding: 8px 10px; font-size: 14px; }
 .form-options, .form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
 .checkbox-label { display: inline-flex; align-items: center; gap: 6px; }
 input[type='checkbox'] { appearance: auto; width: 14px; height: 14px; }

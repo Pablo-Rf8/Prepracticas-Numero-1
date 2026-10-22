@@ -29,7 +29,7 @@
 
             <div>
                 <x-input-label for="password" :value="__('Contraseña actual')" />
-                <x-text-input id="password" name="password" type="password" autocomplete="current-password" required />
+                <x-password-input id="password" name="password" autocomplete="current-password" required />
                 <x-input-error :messages="$errors->userDeletion->get('password')" />
             </div>
 

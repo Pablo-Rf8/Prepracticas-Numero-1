@@ -14,7 +14,7 @@
 
         <div class="form-field">
             <x-input-label for="password" value="Contraseña" />
-            <x-text-input id="password" type="password" name="password" required autocomplete="current-password" :aria-invalid="$errors->has('password') ? 'true' : 'false'" :aria-describedby="$errors->has('password') ? 'password-error' : null" />
+            <x-password-input id="password" name="password" required autocomplete="current-password" :aria-invalid="$errors->has('password') ? 'true' : 'false'" :aria-describedby="$errors->has('password') ? 'password-error' : null" />
             <x-input-error id="password-error" :messages="$errors->get('password')" />
         </div>
 
