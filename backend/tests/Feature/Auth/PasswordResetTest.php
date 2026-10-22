@@ -36,6 +36,34 @@ class PasswordResetTest extends TestCase
         Notification::assertSentTo($user, ResetPassword::class);
     }
 
+    public function test_successful_reset_link_request_shows_confirmation_until_another_link_is_requested(): void
+    {
+        Notification::fake();
+        $user = User::factory()->create();
+
+        $this->from('/forgot-password')->post('/forgot-password', ['email' => $user->email])
+            ->assertRedirect('/forgot-password');
+
+        $this->get('/forgot-password')
+            ->assertOk()
+            ->assertSee('Revisá tu correo')
+            ->assertSee(__('passwords.sent'))
+            ->assertSee('role="status"', false)
+            ->assertSee('Spam')
+            ->assertSee('Enviar otro enlace')
+            ->assertSee(route('password.request'))
+            ->assertDontSee('name="email"', false)
+            ->assertDontSee('<form', false);
+
+        $this->get(route('password.request'))
+            ->assertOk()
+            ->assertSee('name="email"', false)
+            ->assertSee('Enviar enlace de recuperación')
+            ->assertDontSee('Revisá tu correo');
+
+        Notification::assertSentToTimes($user, ResetPassword::class, 1);
+    }
+
     public function test_reset_password_screen_can_be_rendered(): void
     {
         Notification::fake();
@@ -44,10 +72,126 @@ class PasswordResetTest extends TestCase
 
         $this->post('/forgot-password', ['email' => $user->email]);
 
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
-            $response = $this->get('/reset-password/'.$notification->token);
+        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+            $response = $this->get($notification->toMail($user)->actionUrl);
 
-            $response->assertStatus(200);
+            $response->assertOk()
+                ->assertSee('Nueva contraseña')
+                ->assertSee('Confirmar nueva contraseña')
+                ->assertSee('name="email"', false)
+                ->assertSee('value="'.$user->email.'"', false)
+                ->assertDontSee('type="email"', false)
+                ->assertDontSee('Correo electrónico');
+
+            return true;
+        });
+    }
+
+    public function test_reset_link_without_email_does_not_show_password_form(): void
+    {
+        Notification::fake();
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
+            $this->get(route('password.reset', ['token' => $notification->token]))
+                ->assertOk()
+                ->assertSee(__('passwords.token'))
+                ->assertSee(route('password.request'))
+                ->assertDontSee('<form', false);
+
+            return true;
+        });
+    }
+
+    public function test_reset_link_for_another_account_does_not_show_password_form(): void
+    {
+        Notification::fake();
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($otherUser) {
+            $this->get(route('password.reset', [
+                'token' => $notification->token,
+                'email' => $otherUser->email,
+            ]))
+                ->assertOk()
+                ->assertSee(__('passwords.token'))
+                ->assertSee(route('password.request'))
+                ->assertDontSee('<form', false);
+
+            return true;
+        });
+    }
+
+    public function test_expired_reset_link_does_not_show_password_form(): void
+    {
+        Notification::fake();
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+        $this->travel(config('auth.passwords.users.expire') + 1)->minutes();
+
+        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+            $this->get($notification->toMail($user)->actionUrl)
+                ->assertOk()
+                ->assertSee(__('passwords.token'))
+                ->assertSee(route('password.request'))
+                ->assertDontSee('<form', false);
+
+            return true;
+        });
+    }
+
+    public function test_used_reset_link_does_not_show_password_form(): void
+    {
+        Notification::fake();
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+            $this->post('/reset-password', [
+                'token' => $notification->token,
+                'email' => $user->email,
+                'password' => 'new-password-123',
+                'password_confirmation' => 'new-password-123',
+            ])->assertSessionHasNoErrors();
+
+            $this->get($notification->toMail($user)->actionUrl)
+                ->assertOk()
+                ->assertSee(__('passwords.token'))
+                ->assertSee(route('password.request'))
+                ->assertDontSee('<form', false);
+
+            return true;
+        });
+    }
+
+    public function test_reset_token_cannot_change_another_accounts_password(): void
+    {
+        Notification::fake();
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $originalPasswordHash = $user->password;
+        $otherOriginalPasswordHash = $otherUser->password;
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user, $otherUser, $originalPasswordHash, $otherOriginalPasswordHash) {
+            $this->post('/reset-password', [
+                'token' => $notification->token,
+                'email' => $otherUser->email,
+                'password' => 'new-password-123',
+                'password_confirmation' => 'new-password-123',
+            ])->assertSessionHasErrors(['email' => __('passwords.token')]);
+
+            $this->assertSame($originalPasswordHash, $user->fresh()->password);
+            $this->assertSame($otherOriginalPasswordHash, $otherUser->fresh()->password);
+            $this->assertDatabaseHas('password_reset_tokens', ['email' => $user->email]);
 
             return true;
         });

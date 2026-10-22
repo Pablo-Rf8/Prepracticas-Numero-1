@@ -21,7 +21,15 @@ class NewPasswordController extends Controller
      */
     public function create(Request $request): View
     {
-        return view('auth.reset-password', ['request' => $request]);
+        $email = $request->query('email');
+        $token = $request->route('token');
+        $user = is_string($email) ? User::where('email', $email)->first() : null;
+
+        return view('auth.reset-password', [
+            'email' => is_string($email) ? $email : '',
+            'token' => $token,
+            'hasValidLink' => $user !== null && Password::tokenExists($user, $token),
+        ]);
     }
 
     /**
@@ -42,7 +50,7 @@ class NewPasswordController extends Controller
         // database. Otherwise we will parse the error and return the response.
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
-            function (User $user) use ($request) {
+            function (User $user) use ($request): void {
                 $user->forceFill([
                     'password' => Hash::make($request->password),
                     'remember_token' => Str::random(60),
