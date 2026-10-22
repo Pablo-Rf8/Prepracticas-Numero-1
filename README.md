@@ -151,7 +151,13 @@ Antes de desplegar, configurar en Vercel las variables de producción:
 - `APP_KEY`: una clave de Laravel propia de producción, generada con
   `php artisan key:generate --show`, guardada como secreto.
 - `APP_URL`: la dirección HTTPS definitiva de la aplicación.
-- `DATABASE_URL`: conexión a PostgreSQL, por ejemplo Supabase, guardada como secreto.
+- `DATABASE_URL`: conexión a PostgreSQL, guardada como secreto. La integración de
+  Supabase también puede proporcionar `POSTGRES_URL` automáticamente.
+
+Con Supabase, usar la conexión Session Pooler (puerto 5432) en `DB_URL`. Crear una
+vez el esquema privado `laravel` con `CREATE SCHEMA IF NOT EXISTS laravel;` antes
+del primer despliegue. Así las tablas de Laravel quedan fuera de la API pública
+de Supabase.
 
 Las cuentas, sesiones y caché se guardan en PostgreSQL. SQLite sigue siendo la
 base local y no se sube. Vercel usa almacenamiento temporal para las vistas
