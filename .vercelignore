@@ -1,0 +1,15 @@
+.git
+.tools
+.codex
+.vscode
+dist
+**/.env
+**/.env.*
+**/auth.json
+**/node_modules
+**/vendor
+backend/database/*.sqlite*
+backend/storage/logs/*
+backend/storage/framework/views/*
+backend/bootstrap/cache/*.php
+backend/public/hot

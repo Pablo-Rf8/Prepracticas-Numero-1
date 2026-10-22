@@ -1,0 +1,13 @@
+{
+    "name": "pablo/prepracticas-deploy",
+    "description": "Entrada de compilación para desplegar el backend Laravel en Vercel.",
+    "type": "project",
+    "license": "MIT",
+    "require": {},
+    "scripts": {
+        "vercel": [
+            "@composer install --working-dir=backend --no-dev --no-interaction --prefer-dist --optimize-autoloader",
+            "@php backend/artisan migrate --force --no-interaction"
+        ]
+    }
+}

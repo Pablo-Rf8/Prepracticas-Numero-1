@@ -1,0 +1,35 @@
+{
+    "$schema": "https://openapi.vercel.sh/vercel.json",
+    "framework": null,
+    "installCommand": "npm --prefix frontend ci",
+    "buildCommand": "npm --prefix frontend run build && node scripts/build-vercel.mjs",
+    "outputDirectory": "dist",
+    "functions": {
+        "api/index.php": {
+            "runtime": "vercel-php@0.9.0",
+            "excludeFiles": "{.git,.tools,.vercel,dist,frontend/node_modules,backend/tests}/**"
+        }
+    },
+    "routes": [
+        { "handle": "filesystem" },
+        { "src": "/(.*)", "dest": "/api/index.php" }
+    ],
+    "env": {
+        "APP_NAME": "Práctica",
+        "APP_ENV": "production",
+        "APP_DEBUG": "false",
+        "APP_LOCALE": "es",
+        "LOG_CHANNEL": "stderr",
+        "DB_CONNECTION": "pgsql",
+        "DB_SSLMODE": "require",
+        "SESSION_DRIVER": "database",
+        "SESSION_SECURE_COOKIE": "true",
+        "CACHE_STORE": "database",
+        "QUEUE_CONNECTION": "sync",
+        "APP_CONFIG_CACHE": "/tmp/config.php",
+        "APP_EVENTS_CACHE": "/tmp/events.php",
+        "APP_PACKAGES_CACHE": "/tmp/packages.php",
+        "APP_ROUTES_CACHE": "/tmp/routes.php",
+        "APP_SERVICES_CACHE": "/tmp/services.php"
+    }
+}

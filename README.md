@@ -136,6 +136,37 @@ Cada entorno tiene su propia clave y datos; las cuentas creadas localmente no se
 copian a la nube. El correo usa el canal `log`: los enlaces de recuperación de
 contraseña se escriben en `backend/storage/logs/laravel.log` durante el desarrollo.
 
+## Publicar en Vercel
+
+El proyecto incluye `vercel.json` y `api/index.php` para ejecutar Laravel con
+`vercel-php@0.9.0` (PHP 8.5). La raíz del proyecto de Vercel debe ser la raíz del
+repositorio, no `frontend` ni `backend`.
+
+El `composer.json` de la raíz solo coordina el despliegue; las dependencias de la
+aplicación siguen en `backend/composer.json`. Vercel compila los recursos del
+frontend, instala las dependencias del backend y aplica las migraciones.
+
+Antes de desplegar, configurar en Vercel las variables de producción:
+
+- `APP_KEY`: una clave de Laravel propia de producción, generada con
+  `php artisan key:generate --show`, guardada como secreto.
+- `APP_URL`: la dirección HTTPS definitiva de la aplicación.
+- `DATABASE_URL`: conexión a PostgreSQL, por ejemplo Supabase, guardada como secreto.
+
+Las cuentas, sesiones y caché se guardan en PostgreSQL. SQLite sigue siendo la
+base local y no se sube. Vercel usa almacenamiento temporal para las vistas
+compiladas; ese almacenamiento no conserva usuarios. Las cuentas locales no se
+copian a producción.
+
+Desde la raíz, con Vercel CLI autenticado y el proyecto vinculado:
+
+```bash
+vercel deploy --prod
+```
+
+El correo conserva el canal de desarrollo hasta configurar un proveedor SMTP
+con las variables `MAIL_*`; la recuperación por correo requiere ese proveedor.
+
 ## Tecnologías
 
 - Laravel 13, PHP 8.4 y Composer 2.

@@ -60,7 +60,6 @@ $maxWidth = [
         class="simple-modal-backdrop"
         x-on:click="show = false"
     >
-        
     </div>
 
     <div
