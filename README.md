@@ -170,8 +170,32 @@ Desde la raíz, con Vercel CLI autenticado y el proyecto vinculado:
 vercel deploy --prod
 ```
 
-El correo conserva el canal de desarrollo hasta configurar un proveedor SMTP
-con las variables `MAIL_*`; la recuperación por correo requiere ese proveedor.
+Para enviar la recuperación de contraseña mediante Gmail, configurar en Vercel:
+
+```dotenv
+MAIL_MAILER=smtp
+MAIL_SCHEME=smtps
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=465
+MAIL_TIMEOUT=10
+MAIL_USERNAME=cuenta@gmail.com
+MAIL_FROM_ADDRESS=cuenta@gmail.com
+MAIL_FROM_NAME="Práctica"
+```
+
+Guardar `MAIL_PASSWORD` como secreto: debe ser una contraseña de aplicación de
+Google, con verificación en dos pasos activada. No usar la contraseña habitual de
+la cuenta. El remitente debe coincidir con la cuenta Gmail autorizada. Aplicar un
+nuevo despliegue después de cambiar estas variables.
+
+En Windows se puede completar el archivo local `.tools/gmail-mail.env` para
+transferir las credenciales a Vercel; está excluido de Git. Para enviar desde el
+servidor local, configurar también las variables `MAIL_*` en `backend/.env`.
+El modo local predeterminado sigue siendo `log`.
+
+Los enlaces del correo usan `APP_URL`, vencen a los 60 minutos y dejan de ser
+válidos después de restablecer la contraseña. Un fallo del servicio de correo
+muestra un error en español sin confirmar un envío que no se completó.
 
 ## Tecnologías
 
