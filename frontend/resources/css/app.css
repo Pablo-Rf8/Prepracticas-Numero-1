@@ -20,10 +20,19 @@ button:hover { background: #e4e7ed; }
 button:disabled { opacity: .65; cursor: wait; }
 .btn-primary { border-color: #315ea8; background: #315ea8; color: white; }
 .btn-primary:hover { border-color: #274c89; background: #274c89; }
+a.btn-primary { display: inline-block; padding: 7px 14px; border: 1px solid #315ea8; border-radius: 4px; text-decoration: none; }
 .btn-danger { border-color: #a63a3a; background: #a63a3a; color: white; }
 .btn-danger:hover { background: #8a3030; }
 a:focus-visible, button:focus-visible { outline: 2px solid #315ea8; outline-offset: 2px; }
 .simple-navigation { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid #dfe2e7; }
+.simple-navigation [aria-current='page'] { font-weight: 700; }
+.table-scroll { overflow-x: auto; }
+.users-table { width: 100%; border-collapse: collapse; text-align: left; }
+.users-table th, .users-table td { padding: 10px 12px; border-bottom: 1px solid #dfe2e7; }
+.users-table th { font-weight: 700; }
+.users-table th:first-child, .users-table td:first-child { padding-left: 0; }
+.pagination { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin: 20px 0; }
+.pagination [aria-disabled='true'] { color: #667080; }
 .form-stack { display: grid; gap: 14px; }
 .field-label { display: block; margin-bottom: 4px; }
 .field-input { display: block; box-sizing: border-box; width: 100%; max-width: 420px; padding: 8px 10px; border: 1px solid #c7cdd6; border-radius: 4px; background: white; font: inherit; }
